@@ -77,11 +77,13 @@
         if(!previews[0]){
           return ;
         }
+        editor.__img = firstPreview.url;
         previewsDOM.innerHTML = "<img src='" + firstPreview.url + "' />" ;
         __ID('previews_block').style.display = '';
         __ID('app').style.display = 'none';
         btn.style.display = 'none';
         __ID('share_to_wx').style.display = '';
+        wxRegister();
       });
     });
   }
@@ -189,11 +191,10 @@
         'onMenuShareTimeline',
         'onMenuShareAppMessage'
       ]}, signature);
-    wx.config(wxConfig);
-    wx.ready(function () {
-      __ID('share_to_wx').onclick = function(){
-        var imageUrl = document.querySelector('.preview img').src;
-        alert(imageUrl)
+      wx.config(wxConfig);
+      wx.ready(function () {
+      
+        var imageUrl = editor.__img;
         var title = '噗印',
             link = imageUrl,
             imageUrl = imageUrl,
@@ -212,14 +213,12 @@
           imgUrl: imageUrl
         });
 
-        alert('请点击右上角进行分享');
-      }
-
+        __ID('share_to_wx').onclick = function(){
+          alert('请点击右上角进行分享');
+        }
 
     });
   }
-
-  wxRegister();
 
 </script>
 </body>
