@@ -169,10 +169,6 @@
     return des;
   }
 
-  document.onload = function(){
-
-  }
-
   function wxRegister(){
     var currUrl = location.href.split('#')[0];
     $.ajax({
@@ -186,14 +182,14 @@
 
   function wxStart(signature){
     var wxConfig = extend({
-      debug: true,
+      debug: false,
       jsApiList: [
         'onMenuShareTimeline',
         'onMenuShareAppMessage'
       ]}, signature);
       wx.config(wxConfig);
       wx.ready(function () {
-      
+
         var imageUrl = editor.__img;
         var title = '噗印',
             link = imageUrl,
