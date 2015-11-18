@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>噗印</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+</head>
+<body>
+
+<main class="advert">
+  <p>
+    <input type='file' id='uploader' accept='image/png,image/jpeg' style="display: none" />
+  </p>
+  <div id='app' class="editor"></div>
+  <div id='previews'></div>
+  <div id='previews_block' class="clearfix previews" style="display: none;">
+    <div class="main-img preview">
+    </div>
+
+    <!-- <div class="side-img">
+      <div class="left-side fl preview">
+      </div>
+      <div class="left-side fr preview">
+      </div>
+    </div> -->
+
+  </div>
+  <div class="btn-area clearfix">
+    <button class="download_btn fl" type="button" value="" onclick="download()">下载噗印 APP</button>
+    <button class="share_btn fr" type="button" value="看结果" onclick="showPreviews(this)">看预览</button>
+    <button class="share_btn fr" type="button" id="share_to_wx" value="分享到微信" style="display: none">分享到微信
+    </button>
+  </div>
+</main>
+
+<script src="/js/api.bundle.js"></script>
+<script src="/js/editor.bundle.js"></script>
+<script src="//cdn.bootcss.com/jquery/3.0.0-alpha1/jquery.min.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
+<link href="/css/bundle.css" rel="stylesheet" type="text/css" />
+<script>
+
+  var editorOptions = {
+    dimension: { width: 320, height: 450, margin: '0px auto' },
+    oauthConfig: {
+      host: 'https://api-staging.commandp.com.cn',
+      clientId: '2d10e52f499576dabe601ff3c828d4579d62f2ad963efe4813c6f9822eed1488',
+      clientSecret: '76e4fcaf0508df9f58f809c840bf4bedbb05b330c4d99dbd3925d2c91253cf6b'
+    },
+    productModel: getProductModel()
+  };
+
+  var editor = new CommandP.Editor(document.getElementById('app'), editorOptions);
+  window.editor = editor;
+  uploader.addEventListener('change', function() {
+    var file = this.files[0];
+    if (!file) {
+      return;
+    }
+    editor.setImage(file);
+  });
+
+  function getProductModel(){
+    var type = checkAgent();
+    var model = {
+      'ios': 'iphone_6_cases',
+      'android': 'huawei_mate7_cases'
+    }
+    return model[type] || 'huawei_mate7_cases';
+  }
+
+  function showPreviews(btn) {
+    editor.save().then(function(artwork) {
+      editor.loadPreviews().then(function(previews) {
+        previewsDOM = document.querySelector('.preview');
+        var firstPreview = previews[0];
+        if(!previews[0]){
+          return ;
+        }
+        previewsDOM.innerHTML = "<img src='" + firstPreview.url + "' />" ;
+        __ID('previews_block').style.display = '';
+        __ID('app').style.display = 'none';
+        btn.style.display = 'none';
+        __ID('share_to_wx').style.display = '';
+      });
+    });
+  }
+
+  function createOrder() {
+    return editor.save().then(function(artwork) {
+      var profileExample = {
+        name: 'ayaya zhao',
+        phone: '0955123456',
+        address: '3F., No.16, Sec. 5, Nanjing E. Rd., Songshan Dist., Taipei City 105',
+        state: 'Taiwan',
+        zipCode: '10597',
+        country: 'Taiwan (R.O.C.)',
+        countryCode: 'TW',
+        shippingWay: 'standard',
+        email: 'ayaya@commandp.com'
+      };
+      var orderParams = {
+        currency: 'TWD',
+        billingInfo: profileExample,
+        shippingInfo: profileExample,
+        orderItems: [{
+          workUuid: artwork.uuid,
+          quantity: 1
+        }]
+      };
+      return editor.createOrder(orderParams);
+    });
+  }
+
+  function createOrderWithPayment() {
+    createOrder().then(function(order) {
+      result = editor.pay({ paymentMethod: 'cash_on_delivery' });
+    }).catch(function(err) {
+      console.log(err)
+    });
+  }
+
+  function checkAgent(){
+    var userAgent = navigator.userAgent;
+    if (userAgent.match(/(iPhone|iPod|iPad);?/i)) {
+      return 'ios';
+    } else if (userAgent.match(/android/i)) {
+      return 'android';
+    }
+  }
+
+  function download(){
+    window.location = 'http://bao.myapp.com/myapp/detail.htm?apkName=com.commandp.me&apkCode=2';
+  }
+
+  function check(protocol_uri, download_url){
+    if(!protocol_uri || !download_url){
+      return ;
+    }
+    var loadDateTime = new Date;
+    window.setTimeout((function() {
+      var timeOutDateTime;
+      timeOutDateTime = new Date;
+      if (timeOutDateTime - loadDateTime < 2000) {
+          window.location = download_url;
+      } else {
+          window.close();
+      }
+    }), 500);
+    window.location = protocol_uri;
+  }
+
+  function __ID(id){
+    return document.getElementById(id);
+  }
+
+  function extend(des, src, override){
+    if(src instanceof Array){
+       for(var i = 0, len = src.length; i < len; i++)
+            extend(des, src[i], override);
+    }
+    for(var i in src){
+       if(override || !(i in des)){
+           des[i] = src[i];
+       }
+    }
+    return des;
+  }
+
+  document.onload = function(){
+
+  }
+
+  function wxRegister(){
+    var currUrl = location.href.split('#')[0];
+    $.ajax({
+      url: '/signature',
+      data: {'url': currUrl},
+      dataType: 'json'
+    }).done(function(data){
+      wxStart(data);
+    });
+  };
+
+  function wxStart(signature){
+    var wxConfig = extend({
+      debug: true,
+      jsApiList: [
+        'onMenuShareTimeline',
+        'onMenuShareAppMessage'
+      ]}, signature);
+    wx.config(wxConfig);
+    wx.ready(function () {
+      __ID('share_to_wx').onclick = function(){
+        var imageUrl = document.querySelector('.preview img').src;
+        alert(imageUrl)
+        var title = '噗印',
+            link = imageUrl,
+            imageUrl = imageUrl,
+            desc = '将你手机中的照片 DIY 定制成你专属的手机壳，只要 30 秒！简单加上你喜欢的文字与设计，充满质感、设计感的作品我们帮你完成。 鲜艳、持久、不掉色，三包保证。';
+
+        wx.onMenuShareAppMessage({
+          title: title,
+          desc: desc,
+          link: link,
+          imgUrl: imageUrl
+        });
+
+        wx.onMenuShareTimeline({
+          title: desc,
+          link: link,
+          imgUrl: imageUrl
+        });
+
+        alert('请点击右上角进行分享');
+      }
+
+
+    });
+  }
+
+  wxRegister();
+
+</script>
+</body>
+</html>
