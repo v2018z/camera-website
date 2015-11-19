@@ -143,37 +143,6 @@
     return document.getElementById(id);
   }
 
-  function wxRegister(){
-
-  }
-
-  //分享到朋友圈
-
-	function weixinShareTimeline(title,desc,link,imgUrl){
-	    WeixinJSBridge.invoke('shareTimeline',{
-	        "img_url":imgUrl,
-	        "link":link,
-	        "desc": desc,
-	        "title":title
-	    });    
-	}
-
-//发送给好友
-
-	function weixinSendAppMessage(title,desc,link,imgUrl){
-	    WeixinJSBridge.invoke('sendAppMessage',{
-	    "appid":'wxd1a5059f8643d582',
-	    "img_url":imgUrl,
-	    "link":link,
-	    "desc":desc,
-	    "title":title
-	    });
-	}
-
-  __ID('share_to_wx').onclick = function(){
-  	var shareImg = 
-  }
-
 </script>
 </body>
 </html>
