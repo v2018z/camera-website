@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>噗印</title>
+  <meta name="description" content="噗印，为你提供个性化diy定制服务。通过噗印，你可以将手机里的照片制成苹果iPhone手机壳、华为手机壳、小米手机壳、马克杯、贴纸等。噗印，也是你送女朋友、男朋友等礼物的最佳选择！">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+</head>
+<body>
+
+<main class="advert">
+  <p>
+    <input type='file' id='uploader' accept='image/png,image/jpeg' style="display: none" />
+  </p>
+  <div id='app' class="editor"></div>
+  <div id='previews_block' class="clearfix previews" style="display: none;">
+    <div class="main-img preview">
+    </div>
+
+    <!-- <div class="side-img">
+      <div class="left-side fl preview">
+      </div>
+      <div class="left-side fr preview">
+      </div>
+    </div> -->
+
+  </div>
+  <div class="btn-area clearfix">
+    <button class="btn download_btn fl" type="button" value="" onclick="download()">下载噗印 APP</button>
+    <button class="btn share_btn fr" type="button" value="看结果" onclick="showPreviews(this)">看预览</button>
+    <button class="btn share_btn fr" type="button" id="share_to_wx" value="分享到微信" style="display: none">分享到微信
+    </button>
+  </div>
+</main>
+
+<script src="/js/api.bundle.js"></script>
+<script src="/js/editor.bundle.js"></script>
+<script src="//cdn.bootcss.com/jquery/3.0.0-alpha1/jquery.min.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
+<link href="/css/bundle.css" rel="stylesheet" type="text/css" />
+<script>
+
+  var editorOptions = {
+    dimension: { width: $(document).width(), height: 400, margin: '0px auto' },
+    oauthConfig: {
+      host: 'https://api-staging.commandp.com.cn',
+      clientId: '2d10e52f499576dabe601ff3c828d4579d62f2ad963efe4813c6f9822eed1488',
+      clientSecret: '76e4fcaf0508df9f58f809c840bf4bedbb05b330c4d99dbd3925d2c91253cf6b'
+    },
+    productModel: getProductModel()
+  };
+
+  var editor = new CommandP.Editor(document.getElementById('app'), editorOptions);
+  window.editor = editor;
+  uploader.addEventListener('change', function() {
+    var file = this.files[0];
+    if (!file) {
+      return;
+    }
+    editor.setImage(file);
+  });
+
+  function getProductModel(){
+    var type = checkAgent() || 'android';
+    var model = {
+      'ios': 'iphone_6_cases',
+      'android': 'huawei_mate7_cases'
+    }
+    return model[type];
+  }
+
+  function showPreviews(btn) {
+    editor.save().then(function(artwork) {
+      editor.loadPreviews().then(function(previews) {
+        previewsDOM = document.querySelector('.preview');
+        var firstPreview = previews[0];
+        if(!previews[0]){
+          return ;
+        }
+        editor.__img = firstPreview.url;
+        previewsDOM.innerHTML = "<img src='" + firstPreview.url + "' />" ;
+        __ID('previews_block').style.display = '';
+        __ID('app').style.display = 'none';
+        btn.style.display = 'none';
+        __ID('share_to_wx').style.display = '';
+        wxRegister();
+      });
+    });
+    btn.disabled = true;
+  }
+
+  function createOrder() {
+    return editor.save().then(function(artwork) {
+      var profileExample = {
+        name: 'ayaya zhao',
+        phone: '0955123456',
+        address: '3F., No.16, Sec. 5, Nanjing E. Rd., Songshan Dist., Taipei City 105',
+        state: 'Taiwan',
+        zipCode: '10597',
+        country: 'Taiwan (R.O.C.)',
+        countryCode: 'TW',
+        shippingWay: 'standard',
+        email: 'ayaya@commandp.com'
+      };
+      var orderParams = {
+        currency: 'TWD',
+        billingInfo: profileExample,
+        shippingInfo: profileExample,
+        orderItems: [{
+          workUuid: artwork.uuid,
+          quantity: 1
+        }]
+      };
+      return editor.createOrder(orderParams);
+    });
+  }
+
+  function createOrderWithPayment() {
+    createOrder().then(function(order) {
+      result = editor.pay({ paymentMethod: 'cash_on_delivery' });
+    }).catch(function(err) {
+      console.log(err)
+    });
+  }
+
+  function checkAgent(){
+    var userAgent = navigator.userAgent;
+    if (userAgent.match(/(iPhone|iPod|iPad);?/i)) {
+      return 'ios';
+    } else if (userAgent.match(/android/i)) {
+      return 'android';
+    }
+  }
+
+  function download(){
+    window.location = 'http://a.app.qq.com/o/simple.jsp?pkgname=com.commandp.me';
+  }
+
+  function __ID(id){
+    return document.getElementById(id);
+  }
+
+  function wxRegister(){
+
+  }
+
+  //分享到朋友圈
+
+	function weixinShareTimeline(title,desc,link,imgUrl){
+	    WeixinJSBridge.invoke('shareTimeline',{
+	        "img_url":imgUrl,
+	        "link":link,
+	        "desc": desc,
+	        "title":title
+	    });    
+	}
+
+//发送给好友
+
+	function weixinSendAppMessage(title,desc,link,imgUrl){
+	    WeixinJSBridge.invoke('sendAppMessage',{
+	    "appid":'wxd1a5059f8643d582',
+	    "img_url":imgUrl,
+	    "link":link,
+	    "desc":desc,
+	    "title":title
+	    });
+	}
+
+  __ID('share_to_wx').onclick = function(){
+  	weixinSendAppMessage('测试哦', '测试的福建省地方睡觉发呆', location.href, 'http://img.taopic.com/uploads/allimg/130501/240451-13050106450911.jpg')
+  }
+
+</script>
+</body>
+</html>
