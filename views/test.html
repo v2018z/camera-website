@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>噗印，diy定制你的手机壳、马克杯、贴纸！</title>
+  <title>噗印</title>
   <meta name="description" content="噗印，为你提供个性化diy定制服务。通过噗印，你可以将手机里的照片制成苹果iPhone手机壳、华为手机壳、小米手机壳、马克杯、贴纸等。噗印，也是你送女朋友、男朋友等礼物的最佳选择！">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
 <body>
-
-<div style="display:none" id="share_image_area"></div>
 
 <main class="advert">
   <p>
@@ -80,9 +78,7 @@
           return ;
         }
         editor.__img = firstPreview.url;
-        var imageHTML = "<img src='" + firstPreview.url + "' />";
-        previewsDOM.innerHTML = imageHTML;
-        __ID('share_image_area').innerHTML = imageHTML;
+        previewsDOM.innerHTML = "<img src='" + firstPreview.url + "' />" ;
         __ID('previews_block').style.display = '';
         __ID('app').style.display = 'none';
         btn.style.display = 'none';
@@ -142,6 +138,53 @@
 
   function __ID(id){
     return document.getElementById(id);
+  }
+
+  function wxRegister(){
+    var currUrl = location.href.split('#')[0];  
+    $.ajax({
+      url: '/signature',
+      data: {'url': currUrl},
+      dataType: 'json'
+    }).done(function(data){
+      wxStart(data);
+    });
+  };
+
+  function wxStart(signature){
+    var wxConfig = $.extend({}, {
+      debug: false,
+      jsApiList: [
+        'onMenuShareTimeline',
+        'onMenuShareAppMessage'
+      ]}, signature);
+      wx.config(wxConfig);
+      wx.ready(function () {
+
+        var imageUrl = editor.__img;
+        var title = $('title').text(),
+            link = location.href,
+            imageUrl = imageUrl,
+            desc = $('meta[name=description]').attr('content');
+
+        wx.onMenuShareAppMessage({
+          title: title,
+          desc: desc,
+          link: link,
+          imgUrl: imageUrl
+        });
+
+        wx.onMenuShareTimeline({
+          title: desc,
+          link: link,
+          imgUrl: imageUrl
+        });
+
+        __ID('share_to_wx').onclick = function(){
+          alert('请点击右上角进行分享');
+        }
+
+    });
   }
 
 </script>
