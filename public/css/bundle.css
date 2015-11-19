@@ -1,5 +1,19 @@
+html, body { 
+       padding: 0; 
+       margin: 0; 
+}
+html {
+       font-size:1em;
+} 
+body {
+       font-size:100%;
+} 
+a img, :link img, :visited img {
+       border:0px;
+} 
+
 .CE-Editor {
-	position: relative
+	position: relative;
 }
 .CE-Editor-uploader {
 	background-image: url(/images/46c14dc9717dba581bb17d01e55672e4.png);
@@ -75,6 +89,12 @@ img {
 	height: 100%;
 	width: 100%
 }
+
+.advert{
+	margin: 10px;
+	overflow: hidden;
+}
+
 .advert .previews {
 	/*height: 445px;*/
 	overflow: hidden

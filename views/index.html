@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>噗印</title>
+  <meta name="description" content="噗印，为你提供个性化diy定制服务。通过噗印，你可以将手机里的照片制成苹果iPhone手机壳、华为手机壳、小米手机壳、马克杯、贴纸等。噗印，也是你送女朋友、男朋友等礼物的最佳选择！">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
 <body>
@@ -11,7 +12,6 @@
     <input type='file' id='uploader' accept='image/png,image/jpeg' style="display: none" />
   </p>
   <div id='app' class="editor"></div>
-  <div id='previews'></div>
   <div id='previews_block' class="clearfix previews" style="display: none;">
     <div class="main-img preview">
     </div>
@@ -41,7 +41,7 @@
 <script>
 
   var editorOptions = {
-    dimension: { width: 320, height: 400, margin: '0px auto' },
+    dimension: { width: $(document).width(), height: 400, margin: '0px auto' },
     oauthConfig: {
       host: 'https://api-staging.commandp.com.cn',
       clientId: '2d10e52f499576dabe601ff3c828d4579d62f2ad963efe4813c6f9822eed1488',
@@ -61,12 +61,12 @@
   });
 
   function getProductModel(){
-    var type = checkAgent();
+    var type = checkAgent() || 'android';
     var model = {
       'ios': 'iphone_6_cases',
       'android': 'huawei_mate7_cases'
     }
-    return model[type] || 'huawei_mate7_cases';
+    return model[type];
   }
 
   function showPreviews(btn) {
@@ -136,42 +136,12 @@
     window.location = 'http://a.app.qq.com/o/simple.jsp?pkgname=com.commandp.me';
   }
 
-  function check(protocol_uri, download_url){
-    if(!protocol_uri || !download_url){
-      return ;
-    }
-    var loadDateTime = new Date;
-    window.setTimeout((function() {
-      var timeOutDateTime;
-      timeOutDateTime = new Date;
-      if (timeOutDateTime - loadDateTime < 2000) {
-          window.location = download_url;
-      } else {
-          window.close();
-      }
-    }), 500);
-    window.location = protocol_uri;
-  }
-
   function __ID(id){
     return document.getElementById(id);
   }
 
-  function extend(des, src, override){
-    if(src instanceof Array){
-       for(var i = 0, len = src.length; i < len; i++)
-            extend(des, src[i], override);
-    }
-    for(var i in src){
-       if(override || !(i in des)){
-           des[i] = src[i];
-       }
-    }
-    return des;
-  }
-
   function wxRegister(){
-    var currUrl = location.href.split('#')[0];
+    var currUrl = location.href.split('#')[0];  
     $.ajax({
       url: '/signature',
       data: {'url': currUrl},
@@ -182,8 +152,8 @@
   };
 
   function wxStart(signature){
-    var wxConfig = extend({
-      debug: false,
+    var wxConfig = $.extend({}, {
+      debug: true,
       jsApiList: [
         'onMenuShareTimeline',
         'onMenuShareAppMessage'
@@ -192,10 +162,10 @@
       wx.ready(function () {
 
         var imageUrl = editor.__img;
-        var title = '噗印',
-            link = imageUrl,
+        var title = $('title').text(),
+            link = location.href,
             imageUrl = imageUrl,
-            desc = '将你手机中的照片 DIY 定制成你专属的手机壳，只要 30 秒！简单加上你喜欢的文字与设计，充满质感、设计感的作品我们帮你完成。 鲜艳、持久、不掉色，三包保证。';
+            desc = $('meta[name=description]').attr('content');
 
         wx.onMenuShareAppMessage({
           title: title,
