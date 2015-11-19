@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>噗印</title>
+  <title>噗印，diy定制你的手机壳、马克杯、贴纸！</title>
   <meta name="description" content="噗印，为你提供个性化diy定制服务。通过噗印，你可以将手机里的照片制成苹果iPhone手机壳、华为手机壳、小米手机壳、马克杯、贴纸等。噗印，也是你送女朋友、男朋友等礼物的最佳选择！">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
 <body>
-	<div style="display:none">
-		<img src="https://cp-to-qiniu-prod.b0.upaiyun.com/uploads%2Fpreview%2Fimage%2F639%2Forder_image20151014-24898-1nabufe.png?e=1447918997&amp;token=i64BMPIgirXJ5Q5gWEjCmZuXmLsWGIdA52xOVBbA:qJ1SwJlV9yPs6B90KxF7WoxqjD8=?v=1444809767" />
-	</div>
+
+<div style="display:none" id="share_image_area"></div>
 
 <main class="advert">
   <p>
@@ -81,7 +80,9 @@
           return ;
         }
         editor.__img = firstPreview.url;
-        previewsDOM.innerHTML = "<img src='" + firstPreview.url + "' />" ;
+        var imageHTML = "<img src='" + firstPreview.url + "' />";
+        previewsDOM.innerHTML = imageHTML;
+        __ID('share_image_area').innerHTML = imageHTML;
         __ID('previews_block').style.display = '';
         __ID('app').style.display = 'none';
         btn.style.display = 'none';
