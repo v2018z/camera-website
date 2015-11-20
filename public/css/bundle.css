@@ -95,6 +95,10 @@ img {
 	overflow: hidden;
 }
 
+.advert .CE-Editor{
+	margin: 0 auto;
+}
+
 .advert .previews {
 	/*height: 445px;*/
 	overflow: hidden
